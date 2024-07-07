@@ -1,26 +1,24 @@
 package studies;
 
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class Main9095 {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        int case1 = scanner.nextInt();
-        for (int i = 0; i < case1; i++) {
-            int temp = scanner.nextInt();
-            System.out.println(out(temp));
+    static int[] dp = new int[11];
+    public static void main(String[] args) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        int caseValue = Integer.parseInt(reader.readLine());
+        StringBuilder sb = new StringBuilder();
+        dp[1] = 1;
+        dp[2] = 2;
+        dp[3] = 4;
+        for (int i = 4; i < 11; i++) {
+            dp[i] = dp[i - 1] + dp[i - 2] + dp[i - 3];
+        }//dp 알고리즘을 이용하여 배열화
+        for (int i = 0; i < caseValue; i++) {
+            sb.append(dp[Integer.parseInt(reader.readLine())]).append("\n");
         }
-    }
-
-    static int out(int a) {
-        int count = 0;
-        if (a == 1) {
-            return 1;
-        } else if (a == 2) {
-            return 2;
-        } else if (a == 3) {
-            return 4;
-        }
-        return 0;
+        System.out.println(sb);
     }
 }
