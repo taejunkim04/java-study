@@ -5,23 +5,22 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
-public class Main2745 {
+public class Main11005 {
     public static void main(String[] args) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
         StringTokenizer tk = new StringTokenizer(reader.readLine());
-        String s = tk.nextToken();
         int num = Integer.parseInt(tk.nextToken());
-        int locationValue = 1;
-        int sum = 0;
-        for (int i = s.length() - 1; i >= 0; i--) {
-            char c = s.charAt(i);
-            if ((int) c <= 64) {
-                sum += locationValue * ((int) c - 48);
+        int jinSu = Integer.parseInt(tk.nextToken());
+
+        while(num != 0){
+            if (num % jinSu >= 10) {
+                sb.append((char) ((num % jinSu) + 55));
             } else {
-                sum += locationValue * ((int) c - 55);
+                sb.append(num%jinSu);
             }
-            locationValue *= num;
+            num /= jinSu;
         }
-        System.out.println(sum);
+        System.out.println(sb.reverse());
     }
 }
