@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
-public class Main15655 {
+public class Main15656 {
     public static StringBuilder sb;//출력형태
     public static int n, m;//n과m
     public static int[] values;//제시되는 값을 담을배열
@@ -27,11 +27,11 @@ public class Main15655 {
         Arrays.sort(values);
         soutArray = new int[m];
 
-        res(0, 0);
+        res(0);
         System.out.println(sb);
     }
 
-    public static void res(int depth,int pointer) {
+    public static void res(int depth) {
         if (depth == m) {
             for (int i : soutArray) {
                 sb.append(i).append(" ");
@@ -39,10 +39,9 @@ public class Main15655 {
             sb.append("\n");
             return;
         }
-        for (int i = pointer; i < values.length; i++) {
+        for (int i = 0; i < values.length; i++) {
             soutArray[depth] = values[i];
-            res(depth+1,pointer+1);
-            pointer++;
+            res(depth+1);
         }
     }
 }
