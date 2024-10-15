@@ -4,9 +4,12 @@ public class Person {
     private String name;
     private CellPhone cellPhone;
 
-    public Person(String name, String phoneNum) {
+    public Person() {
+
+    }
+    public Person(String name, CellPhone phoneNum) {
         this.name = name;
-        this.cellPhone = new CellPhone(phoneNum);
+        this.cellPhone = phoneNum;
     }
 
     public String getName() {

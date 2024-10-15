@@ -3,6 +3,9 @@ package study7.quiz1;
 public class CellPhone {
     private String phoneNum;
 
+    public CellPhone() {
+
+    }
     public CellPhone(String phoneNum) {
         this.phoneNum = phoneNum;
     }
