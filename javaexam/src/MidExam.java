@@ -21,7 +21,7 @@ public class MidExam {
     int[] productPrice = new int[productCount];
 
     String[] PayLog = new String[10];
-
+    int todaySalesTotal = 0;
     //메인 실행 메서드
     public void run() {
         setProductList();
@@ -32,7 +32,7 @@ public class MidExam {
             System.out.print("수행을 원하는 작업의 번호를 입력하세요: ");
             String choice = scanner.nextLine();
             switch (choice) {
-                //4,5,6,7,8 미구현
+                //4,5,6,8 미구현
                 case "1" -> showProductList();
                 case "2"-> chooseProducts();
                 case "3"-> showAndModifyPickList();
@@ -269,10 +269,15 @@ public class MidExam {
     // 5번 옵션 직전 영수증 발행 메서드
     private void printLastReceipt() {
     }
+
     // 6번 옵션 결제 메서드
     private void refundAndReturn() {
     }// 7번 옵션 결제 메서드
+
     private void getTodaySales() {
+        System.out.println("------------------------------------------------------------------------");
+        System.out.printf("금일 판매된 금액은: 총 %d원 입니다.", todaySalesTotal);
+        System.out.println();
     }
     // 8번 옵션 결제 메서드
     private void updateProductNameAndPrice() {
