@@ -3,10 +3,10 @@ import java.util.Scanner;
 public class MidExam {
     //컴퓨터공학과
     //편의점 pos 기기 구현
-    //현재 구현 기능: 상품세팅,상품 보기,담은 내역 확인,
-    //구현 예정 기능: 담은 상품 삭제, (현금 결제시)거스름 지폐계산,
-    // 통합계산,멤버십 할인 및 기프티콘,결제(결제 실패까지), 영수증 재발행(로그화),환불,현재 매출확인,
-    // 상품명 및 가격 변경(권한 설정 및 암호 입력),
+    //현재 구현 기능: 상품세팅,상품 보기,담은 내역 확인,현재 매출확인,담은 상품 삭제,상품명 및 가격 변경
+    //구현 예정 기능:  (현금 결제시)거스름 지폐계산,
+    // 통합계산,멤버십 할인 및 기프티콘,결제(결제 실패까지), 영수증 재발행(로그화),환불,,
+    //유효성 체크 메서드화
     Scanner scanner = new Scanner(System.in);
     boolean endButton = false;
     String masterKeyValue = "4356";//관리자 권한 값(가상구현이므로 제시)
@@ -32,7 +32,7 @@ public class MidExam {
             System.out.print("수행을 원하는 작업의 번호를 입력하세요: ");
             String choice = scanner.nextLine();
             switch (choice) {
-                //4,5,6,8 미구현
+                //4,5,6 미구현
                 case "1" -> showProductList();
                 case "2"-> chooseProducts();
                 case "3"-> showAndModifyPickList();
@@ -270,17 +270,106 @@ public class MidExam {
     private void printLastReceipt() {
     }
 
-    // 6번 옵션 결제 메서드
+    // 6번 옵션 환불 및 반품 메서드
     private void refundAndReturn() {
-    }// 7번 옵션 결제 메서드
+    }
+
+    // 7번 옵션 금일 매출 조회 메서드
 
     private void getTodaySales() {
+        if (!checkMaster()) {
+            System.out.println("권한이 없어 메뉴로 돌아갑니다.");
+            return;
+        }
         System.out.println("------------------------------------------------------------------------");
         System.out.printf("금일 판매된 금액은: 총 %d원 입니다.", todaySalesTotal);
         System.out.println();
     }
-    // 8번 옵션 결제 메서드
+    // 8번 옵션 판매 상품명 및 가격 변경 메서드
     private void updateProductNameAndPrice() {
+        for (boolean b : useListLine) {
+            if (b) {
+                System.out.println("제품이 담긴 상태에서는 수정이 불가합니다.");
+                System.out.println("결제 진행 후나 제품을 비우고 시도해주세요.");
+                return;
+            }
+        }
+        if (!checkMaster()) {
+            System.out.println("권한이 없어 메뉴로 돌아갑니다.");
+            return;
+        }
+        System.out.println("변경을 위해 상품 목록을 출력합니다.");
+        showProductList();
+        while (true) {
+            System.out.print("어떤 상품을 수정하시겠습니까?(취소는 q를 입력하세요.)");
+            String choice = scanner.nextLine();
+            if (choice.equals("q") || choice.equals("Q")) {
+                System.out.println("메뉴로 돌아갑니다.");
+                return;
+            }
+            boolean error = false;
+            int choiceNum;
+            for (int i = 0; i < choice.length(); i++) {
+                if (!Character.isDigit(choice.charAt(i))) {
+                    // 문자가 있으면 재입력
+                    System.out.println("잘못된 입력입니다.제품의 번호를 다시 입력해주세요.)");
+                    error = true;
+                    break;
+                }
+            }
+            if (error) {
+                continue;
+            }
+            choiceNum = Integer.parseInt(choice);
+            if (choiceNum < 1 && choiceNum > productCount) {
+                error = true;
+                System.out.println("해당 번호의 상품이 존재하지 않습니다. 제품의 번호를 다시 입력해주세요.");
+            }
+            if (error) {
+                continue;
+            }
+            int optionInt=-1;
+            while (optionInt == -1) {
+                System.out.println("1. 상품명 수정, 2. 가격 수정, 3. 상품명과 가격 수정 4. 메뉴로 이동");
+                System.out.print("옵션을 선택해주세요.");
+                String option = scanner.nextLine();
+                switch (option) {
+                    case "1" -> optionInt = 1;
+                    case "2" -> optionInt = 2;
+                    case "3" -> optionInt = 3;
+                    case "4" -> {
+                        System.out.println("메뉴로 돌아갑니다.");
+                        return;
+                    }
+                    default -> System.out.println("잘못된 입력입니다. 다시 입력해주세요.");
+                }
+            }
+            if (optionInt == 1) {
+                System.out.printf("현재 %d의 상품명은 %s 입니다.\n", choiceNum, productList[choiceNum - 1]);
+                System.out.print("변경할 상품명을 입력해주세요.");
+                productList[choiceNum - 1] = scanner.nextLine();
+                System.out.printf("현재 %d의 상품명은 %s로 변경되었습니다.\n", choiceNum, productList[choiceNum - 1]);
+            } else if (optionInt == 2) {
+                System.out.printf("현재 %d의 상품명은 %s, 가격은 %d 입니다.\n", choiceNum, productList[choiceNum - 1], productPrice[choiceNum - 1]);
+                System.out.print("변경할 가격을 입력해주세요.");
+                productPrice[choiceNum - 1] = scanner.nextInt();
+                scanner.nextLine();
+                System.out.printf("현재 %d의 상품명 %s의 가격이 %d로 변경되었습니다.\n", choiceNum, productList[choiceNum - 1], productPrice[choiceNum - 1]);
+            } else {
+                //3일 때
+                System.out.printf("현재 %d의 상품명은 %s, 가격은 %d 입니다.\n", choiceNum, productList[choiceNum - 1], productPrice[choiceNum - 1]);
+                System.out.print("변경할 상품명을 입력해주세요.");
+                productList[choiceNum - 1] = scanner.nextLine();
+                System.out.print("변경할 가격을 입력해주세요.");
+                productPrice[choiceNum - 1] = scanner.nextInt();
+                scanner.nextLine();
+                System.out.printf("현재 %d의 상품명 %s의 가격이 %d로 변경되었습니다.\n", choiceNum, productList[choiceNum - 1], productPrice[choiceNum - 1]);
+            }
+        }
+        
+        
+        
+        
     }
 
 
@@ -288,14 +377,23 @@ public class MidExam {
 
     // 9번 옵션 종료 메서드
     private void end() {
-        System.out.println("종료를 위해 관리자 권한이 있는지 확인합니다.");
+        if (!checkMaster()) {
+            System.out.println("권한이 없어 메뉴로 돌아갑니다.");
+            return;
+        }
+        endButton = true;
+    }
+
+    private boolean checkMaster() {
+        System.out.println("관리자 권한이 있는지 확인합니다.");
         System.out.printf("암호를 입력해주세요.(암호는 %s 입니다.)", masterKeyValue);
         String inputPass = scanner.nextLine();
         if (inputPass.equals(masterKeyValue)) {
             System.out.println("관리자 권한이 확인되었습니다.");
-            endButton = true;
+            return true;
         } else {
-            System.out.println("암호가 일치하지 않습니다. 메뉴로 돌아갑니다.");
+            System.out.println("암호가 일치하지 않습니다.");
+            return false;
         }
     }
 
