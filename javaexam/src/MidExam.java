@@ -98,7 +98,7 @@ public class MidExam {
                 return;
             }
             if (wantBye.charAt(0) == ' ') {
-                System.out.println("첫 시작이 공백으로 잘못된 입력입니다.");
+                System.out.println("첫 시작이 공백으로, 잘못된 입력입니다.");
                 continue;
             }
             String[] proAndCou = wantBye.split(" ");
@@ -212,16 +212,9 @@ public class MidExam {
                 return;
             }
             String[] nameAndCount = choice.split(" ");
-            boolean error = false;
-            for (int i = 0; i < nameAndCount[1].length(); i++) {
-                if (!Character.isDigit(nameAndCount[1].charAt(i))) {
-                    // 갯수에 문자가 있으면 재입력
-                    System.out.println("잘못된 입력입니다. 다시 입력해주세요. 입력 예시) 삼겹살 5)");
-                    error = true;
-                    break;
-                }
-            }
-            if (error) {
+
+            if (haveWords(nameAndCount[1])) {
+                System.out.println("잘못된 입력입니다. 다시 입력해주세요. 입력 예시) 삼겹살 5)");
                 continue;
             }
             int changeCount = Integer.parseInt(nameAndCount[1]);
@@ -265,6 +258,8 @@ public class MidExam {
     }
     // 4번 옵션 결제 메서드
     private void pickListPay() {
+        //멤버십 및 기프티콘 할인
+        //결제수단(통합,카드(한 번 실패),현금(거스름 돈 계산))
     }
     // 5번 옵션 직전 영수증 발행 메서드
     private void printLastReceipt() {
@@ -307,27 +302,17 @@ public class MidExam {
                 System.out.println("메뉴로 돌아갑니다.");
                 return;
             }
-            boolean error = false;
-            int choiceNum;
-            for (int i = 0; i < choice.length(); i++) {
-                if (!Character.isDigit(choice.charAt(i))) {
-                    // 문자가 있으면 재입력
-                    System.out.println("잘못된 입력입니다.제품의 번호를 다시 입력해주세요.)");
-                    error = true;
-                    break;
-                }
-            }
-            if (error) {
+
+            if (haveWords(choice)) {
+                System.out.println("잘못된 입력입니다.제품의 번호를 다시 입력해주세요.)");
                 continue;
             }
-            choiceNum = Integer.parseInt(choice);
+            int choiceNum = Integer.parseInt(choice);
             if (choiceNum < 1 && choiceNum > productCount) {
-                error = true;
                 System.out.println("해당 번호의 상품이 존재하지 않습니다. 제품의 번호를 다시 입력해주세요.");
-            }
-            if (error) {
                 continue;
             }
+
             int optionInt=-1;
             while (optionInt == -1) {
                 System.out.println("1. 상품명 수정, 2. 가격 수정, 3. 상품명과 가격 수정 4. 메뉴로 이동");
@@ -351,25 +336,41 @@ public class MidExam {
                 System.out.printf("현재 %d의 상품명은 %s로 변경되었습니다.\n", choiceNum, productList[choiceNum - 1]);
             } else if (optionInt == 2) {
                 System.out.printf("현재 %d의 상품명은 %s, 가격은 %d 입니다.\n", choiceNum, productList[choiceNum - 1], productPrice[choiceNum - 1]);
-                System.out.print("변경할 가격을 입력해주세요.");
-                productPrice[choiceNum - 1] = scanner.nextInt();
-                scanner.nextLine();
+                changeThePrice(choiceNum);
                 System.out.printf("현재 %d의 상품명 %s의 가격이 %d로 변경되었습니다.\n", choiceNum, productList[choiceNum - 1], productPrice[choiceNum - 1]);
             } else {
                 //3일 때
                 System.out.printf("현재 %d의 상품명은 %s, 가격은 %d 입니다.\n", choiceNum, productList[choiceNum - 1], productPrice[choiceNum - 1]);
                 System.out.print("변경할 상품명을 입력해주세요.");
                 productList[choiceNum - 1] = scanner.nextLine();
-                System.out.print("변경할 가격을 입력해주세요.");
-                productPrice[choiceNum - 1] = scanner.nextInt();
-                scanner.nextLine();
+                changeThePrice(choiceNum);
                 System.out.printf("현재 %d의 상품명 %s의 가격이 %d로 변경되었습니다.\n", choiceNum, productList[choiceNum - 1], productPrice[choiceNum - 1]);
             }
         }
-        
-        
-        
-        
+    }
+    //가격을 변경하는 부분이 중복되어 메서드처리
+    private void changeThePrice(int choiceNum) {
+        while (true) {
+            System.out.print("변경할 가격을 입력해주세요.");
+            String tempPrice = scanner.nextLine();
+            if (haveWords(tempPrice)) {
+                System.out.println("잘못된 입력입니다. 다시 입력해주세요.");
+                continue;
+            }
+            productPrice[choiceNum - 1] = Integer.parseInt(tempPrice);
+            break;
+        }
+    }
+    //문자열에 int형으로 변환될 수 있는 값 외에 다른 값이 있는지 확인
+    private boolean haveWords(String string) {
+        boolean isNotNumber = false;
+        for (int i = 0; i < string.length(); i++) {
+            if (!Character.isDigit(string.charAt(i))) {
+                isNotNumber = true;
+                break;
+            }
+        }
+        return isNotNumber;
     }
 
 
@@ -395,20 +396,6 @@ public class MidExam {
             System.out.println("암호가 일치하지 않습니다.");
             return false;
         }
-    }
-
-    // 주문내역 확인
-    private void checkOrder() {
-    }
-
-    // 결제 진행 메서드
-    private void payProducts() {
-        //멤버십 및 기프티콘 할인
-        //결제수단(통합,카드(한 번 실패),현금(거스름 돈 계산))
-    }
-    private boolean checkOut() {
-
-        return true; // 임시
     }
 
     // 메인
