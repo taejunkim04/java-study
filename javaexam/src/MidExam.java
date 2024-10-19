@@ -14,14 +14,15 @@ public class MidExam {
     int listCount = 20;
     String[] pickListName = new String[listCount];
     int[][] pickListPrice = new int[listCount][2];//가격 갯수
-    boolean[] useListLine = new boolean[listCount];
+    boolean[] useListLine = new boolean[listCount];//사용중인 라인 확인
 
+    //등록된 제품 수와 이름 가격을 정의하는 값과 배열
     int productCount = 30;
     String[] productList = new String[productCount];
     int[] productPrice = new int[productCount];
 
     String[] PayLog = new String[10];
-    int todaySalesTotal = 0;
+    int todaySalesTotal = 0;//금일 매출 조회를 위해 선언
     //메인 실행 메서드
     public void run() {
         setProductList();
@@ -304,7 +305,7 @@ public class MidExam {
             }
 
             if (haveWords(choice)) {
-                System.out.println("잘못된 입력입니다.제품의 번호를 다시 입력해주세요.)");
+                System.out.println("잘못된 입력입니다.제품의 번호를 다시 입력해주세요.");
                 continue;
             }
             int choiceNum = Integer.parseInt(choice);
@@ -331,8 +332,7 @@ public class MidExam {
             }
             if (optionInt == 1) {
                 System.out.printf("현재 %d의 상품명은 %s 입니다.\n", choiceNum, productList[choiceNum - 1]);
-                System.out.print("변경할 상품명을 입력해주세요.");
-                productList[choiceNum - 1] = scanner.nextLine();
+                changeTheName(choiceNum);
                 System.out.printf("현재 %d의 상품명은 %s로 변경되었습니다.\n", choiceNum, productList[choiceNum - 1]);
             } else if (optionInt == 2) {
                 System.out.printf("현재 %d의 상품명은 %s, 가격은 %d 입니다.\n", choiceNum, productList[choiceNum - 1], productPrice[choiceNum - 1]);
@@ -341,14 +341,13 @@ public class MidExam {
             } else {
                 //3일 때
                 System.out.printf("현재 %d의 상품명은 %s, 가격은 %d 입니다.\n", choiceNum, productList[choiceNum - 1], productPrice[choiceNum - 1]);
-                System.out.print("변경할 상품명을 입력해주세요.");
-                productList[choiceNum - 1] = scanner.nextLine();
+                changeTheName(choiceNum);
                 changeThePrice(choiceNum);
                 System.out.printf("현재 %d의 상품명 %s의 가격이 %d로 변경되었습니다.\n", choiceNum, productList[choiceNum - 1], productPrice[choiceNum - 1]);
             }
         }
     }
-    //가격을 변경하는 부분이 중복되어 메서드처리
+    //8번 옵션 가격을 변경하는 부분이 중복되어 메서드처리
     private void changeThePrice(int choiceNum) {
         while (true) {
             System.out.print("변경할 가격을 입력해주세요.");
@@ -361,19 +360,18 @@ public class MidExam {
             break;
         }
     }
-    //문자열에 int형으로 변환될 수 있는 값 외에 다른 값이 있는지 확인
-    private boolean haveWords(String string) {
-        boolean isNotNumber = false;
-        for (int i = 0; i < string.length(); i++) {
-            if (!Character.isDigit(string.charAt(i))) {
-                isNotNumber = true;
-                break;
+    private void changeTheName(int choiceNum) {
+        while (true) {
+            System.out.print("변경할 상품명을 입력해주세요.");
+            String tempName = scanner.nextLine();
+            if (tempName.isEmpty()) {
+                System.out.println("공백으로 잘못된 입력입니다. 다시 입력해주세요.");
+                continue;
             }
+            productList[choiceNum - 1] = tempName;
+            break;
         }
-        return isNotNumber;
     }
-
-
 
 
     // 9번 옵션 종료 메서드
@@ -384,7 +382,23 @@ public class MidExam {
         }
         endButton = true;
     }
-
+    //문자열에 int형으로 변환될 수 있는 값 외에 다른 값이 있는지 확인
+    private boolean haveWords(String string) {
+        boolean isNotNumber = false;
+        if (string.isEmpty()) {
+            System.out.println("공백입니다. 다시 입력해주세요.");
+            isNotNumber = true;
+            return isNotNumber;
+        }
+        for (int i = 0; i < string.length(); i++) {
+            if (!Character.isDigit(string.charAt(i))) {
+                isNotNumber = true;
+                break;
+            }
+        }
+        return isNotNumber;
+    }
+    //관리자 권한이 있는지 확인하는 메서드
     private boolean checkMaster() {
         System.out.println("관리자 권한이 있는지 확인합니다.");
         System.out.printf("암호를 입력해주세요.(암호는 %s 입니다.)", masterKeyValue);
