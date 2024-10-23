@@ -3,13 +3,14 @@ import java.util.Scanner;
 public class MidExam {
     //컴퓨터공학과
     //편의점 pos 기기 구현
-    //현재 구현 기능: 상품세팅,상품 보기,담은 내역 확인,현재 매출확인,담은 상품 삭제,상품명 및 가격 변경
+    //현재 구현 기능: 상품세팅,상품 보기,담은 내역 확인,현재 매출확인,담은 상품 삭제,상품명 및 가격 변경,유효성 체크 메서드화
     //구현 예정 기능:  (현금 결제시)거스름 지폐계산,
-    // 통합계산,멤버십 할인 및 기프티콘,결제(결제 실패까지), 영수증 재발행(로그화),환불,,
-    //유효성 체크 메서드화
+    // 통합계산,멤버십 할인,결제(결제 실패까지), 영수증 재발행(로그화),환불,,
+    //
     Scanner scanner = new Scanner(System.in);
     boolean endButton = false;
     String masterKeyValue = "4356";//관리자 권한 값(가상구현이므로 제시)
+    int memberDisCount = 10;//멤버십 할인 시 적용되는 %
 
     int listCount = 20;
     String[] pickListName = new String[listCount];
@@ -21,7 +22,11 @@ public class MidExam {
     String[] productList = new String[productCount];
     int[] productPrice = new int[productCount];
 
-    String[] PayLog = new String[10];
+    int logStoreCount = 10;
+    String[] payLog = new String[logStoreCount];
+    int[] payLogPrice = new int[logStoreCount];
+    int logPoint = 0;
+    String lastPayResult="";
     int todaySalesTotal = 0;//금일 매출 조회를 위해 선언
     //메인 실행 메서드
     public void run() {
@@ -29,18 +34,18 @@ public class MidExam {
         while (true) {
             System.out.println("------------------------------------------------------------------------");
             System.out.println("1. 상품 목록 보기 2. 상품 선택 3. 담은 내역 확인 및 수정 4. 결제 5. 직전 영수증 재발행");
-            System.out.println("관리자 권한 필요: 6. 환불 및 반품 7. 금일 매출 조회 8. 판매 상품명 밎 가격 변경 9. 종료");
+            System.out.println("관리자 권한 필요: 6. 금일 매출 조회 7. 환불 8. 판매 상품명 밎 판매 가격 변경 9. 종료");
             System.out.print("수행을 원하는 작업의 번호를 입력하세요: ");
             String choice = scanner.nextLine();
             switch (choice) {
-                //4,5,6 미구현
+                //7 미구현
                 case "1" -> showProductList();
                 case "2"-> chooseProducts();
                 case "3"-> showAndModifyPickList();
                 case "4"-> pickListPay();
                 case "5"-> printLastReceipt();
-                case "6"-> refundAndReturn();
-                case "7"-> getTodaySales();
+                case "6"-> getTodaySales();
+                case "7"-> refundAndReturn();
                 case "8"-> updateProductNameAndPrice();
                 case "9"-> end();
                 default -> System.out.println("잘못된 입력입니다. 다시 입력해주세요.");
@@ -54,8 +59,8 @@ public class MidExam {
 
     // 메뉴 세팅 메서드(임의로 상품 리스트 생성)
     private void setProductList() {
-        String[] brandName={"해태","오리온","롯데","CJ","농심"};
-        String[] productType={"탄산","주스","과자","조미료","냉동","신선"};
+        String[] brandName={"해태","삼양","롯데","삼립","농심"};
+        String[] productType={"탄산","주스","과자","우유","냉동","신선"};
         for (int i = 0; i < productType.length; i++) {
             for (int j = 0; j < brandName.length; j++) {
                 productList[i*brandName.length+j]=brandName[j] + productType[i];
@@ -97,6 +102,9 @@ public class MidExam {
             if (wantBye.equals("q") || wantBye.equals("Q")) {
                 System.out.println("담기를 종료하고 메뉴로 돌아갑니다.");
                 return;
+            }
+            if (wantBye.isEmpty()) {
+                continue;
             }
             if (wantBye.charAt(0) == ' ') {
                 System.out.println("첫 시작이 공백으로, 잘못된 입력입니다.");
@@ -172,7 +180,7 @@ public class MidExam {
     // 3번 옵션 담은 내역 확인 및 수정 메서드
     private void showAndModifyPickList() {
         while (true) {
-            System.out.println("1. 담은 상품 확인, 2. 담은 상품 수정, 3. 메뉴로 이동");
+            System.out.println("1. 담은 상품 확인 2. 담은 상품 수정 3. 메뉴로 이동");
             System.out.print("몇 번 명령을 수행할까요?");
             String choice = scanner.nextLine();
             if (choice.equals("1")) {
@@ -242,7 +250,7 @@ public class MidExam {
                 continue;
             }
             while (true) {
-                System.out.println("1. 계속 변경, 2. 목록 확인 3. 메뉴로 이동");
+                System.out.println("1. 계속 변경 2. 목록 확인 3. 메뉴로 이동");
                 System.out.print("몇 번 명령을 수행할까요?");
                 String again = scanner.nextLine();
                 if (again.equals("1")) {
@@ -258,20 +266,188 @@ public class MidExam {
         }
     }
     // 4번 옵션 결제 메서드
+    //멤버십 할인,결제수단(통합,카드(한 번 실패),현금(거스름 돈 계산))
     private void pickListPay() {
-        //멤버십 및 기프티콘 할인
-        //결제수단(통합,카드(한 번 실패),현금(거스름 돈 계산))
+        System.out.println("담은 내역을 출력합니다.");
+        showPickList();
+        while (true) {
+            System.out.println("1. 결제 2. 메뉴로 돌아가기");
+            System.out.print("몇 번 명령을 수행할까요?");
+            String choice = scanner.nextLine();
+            if (choice.equals("1")) {
+                break;
+            } else if (choice.equals("2")) {
+                return;
+            } else {
+                System.out.println("잘못된 입력입니다. 다시 입력해주세요.");
+            }
+        }
+        int totalPrice = 0;
+        for (int i = 0; i < listCount; i++) {
+            if (useListLine[i]) {
+                totalPrice += pickListPrice[i][0] * pickListPrice[i][1];
+            }
+        }
+        boolean memberUse = false;
+        //결제 진행
+        while (true) {
+            System.out.println("1. 멤버십 할인 및 기프티콘 사용 2. 바로 결제 3. 메뉴로 돌아가기");
+            System.out.print("몇 번 명령을 수행할까요?");
+            String choice = scanner.nextLine();
+            if (choice.equals("1")) {
+                memberUse = true;
+                totalPrice = memberShipAndGift(totalPrice);
+                realPickListPay(totalPrice);
+                break;
+            } else if (choice.equals("2")) {
+                realPickListPay(totalPrice);
+                break;
+            } else if (choice.equals("3")) {
+                return;
+            } else {
+                System.out.println("잘못된 입력입니다. 다시 입력해주세요.");
+            }
+        }
+        todaySalesTotal += totalPrice;
+        System.out.println("=== 영수증을 출력합니다. ===");
+        madeLastLog(totalPrice, memberUse);
+        System.out.println(lastPayResult);
+        System.out.println("결제가 종료되어 메뉴로 돌아갑니다.");
+        endPay(totalPrice);
+    }
+    //결제 후 결제내역 관리 메서드
+    private void endPay(int totalPr) {
+        //장바구니 초기화
+        for (int i = 0; i < listCount; i++) {
+            if (useListLine[i]) {
+                pickListName[i] = "";//이름 초기화
+                pickListPrice[i][1] = 0;//개수 초기화
+            }
+        }
+        for (int i = 0; i < listCount; i++) {
+            useListLine[i] = false;
+        }
+        payLog[logPoint] = lastPayResult;
+        payLogPrice[logPoint] = totalPr;
+        logPoint++;
+        if (logPoint == logStoreCount) {
+            logPoint = 0;
+        }
+    }
+    //영수증 생성 메서드
+    private void madeLastLog(int totalPrice, boolean disCount) {
+        lastPayResult = "";
+        int totalCount = 0;
+        for (int i = 0; i < listCount; i++) {
+            if (useListLine[i]) {
+                String itemResult = pickListName[i] + "\t\t  " + pickListPrice[i][0] + "원 " + pickListPrice[i][1] + "개\n";
+                lastPayResult += itemResult;
+                totalCount += pickListPrice[i][1];
+            }
+        }
+        String totalCountStr = "\t\t\t 수량:    " + totalCount + "개\n";
+        lastPayResult += totalCountStr;
+
+        String totalPriceStr = "\t\t\t 합계: " + totalPrice + "원\n";
+        lastPayResult += totalPriceStr;
+
+        if (disCount) {
+            String discountStr = "할인 " + memberDisCount + "%가 적용된 금액입니다\n";
+            lastPayResult += discountStr;
+        }
+    }
+
+    // 4_1 멤버십 할인 및 기프티콘 사용 적용
+    private int memberShipAndGift(int originalPrice) {
+        System.out.println("멤버십 내역을 확인합니다.");
+        System.out.println("확인 되었습니다. " + memberDisCount + "% 할인이 적용 되었습니다.");
+        int changePrice = originalPrice * (100 - memberDisCount) / 100;
+        System.out.printf("%d원에서 할인이 적용되어 %d원입니다.\n", originalPrice, changePrice);
+        return changePrice;
+    }
+
+    // 4_2 실제 결제 메서드
+    private void realPickListPay(int totalPrice) {
+        while (true) {
+            System.out.println("결제 수단을 선택해주세요.");
+            System.out.println("1. 카드 2. 현금 3. 통합결제");
+            System.out.print("몇 번 명령을 수행할까요?");
+            String choice = scanner.nextLine();
+            if (choice.equals("1")) {
+                cardPay(totalPrice);
+                break;
+            } else if (choice.equals("2")) {
+                totalPrice = cashPay(totalPrice, true);
+                break;
+            } else if (choice.equals("3")) {
+                totalPrice = cashPay(totalPrice, false);
+                if (totalPrice != 0) {
+                    cardPay(totalPrice);
+                }
+                break;
+            } else {
+                System.out.println("잘못된 입력입니다. 다시 입력해주세요.");
+            }
+        }
+    }
+
+    // 4_2_1 카드결제
+    private void cardPay(int totalPrice) {
+        boolean online = false;
+        while (true) {
+            System.out.println("결제를 진행합니다.");
+            if (online) {
+                System.out.printf("카드로 %d원이 결제 되었습니다.\n", totalPrice);
+                break;
+            } else {
+                System.out.println("통신이 불안정하여 다시 시도합니다.");
+                online = true;
+            }
+        }
+    }
+    // 4_2_2 현금결제
+    private int cashPay(int totalPrice,boolean onlyCash) {
+        while (true) {
+            System.out.println("결제를 진행합니다.");
+            System.out.printf("금액은 %d입니다.\n", totalPrice);
+            System.out.println("지불할 금액을 입력해주세요.");
+            String getMoney = scanner.nextLine();
+            if (haveWords(getMoney)) {
+                System.out.println("금액이 아닙니다. 다시 입력해주세요.");
+                continue;
+            }
+            int getMoneyInt = Integer.parseInt(getMoney);
+            if (onlyCash) {
+                if (getMoneyInt < totalPrice) {
+                    System.out.println("금액이 모자랍니다. 다시 입력해주세요.");//루프
+                } else {
+                    System.out.println("결제가 완료되었습니다.");
+                    System.out.printf("거스름 돈은 %d입니다.\n", getMoneyInt - totalPrice);
+                    return 0;
+                }
+            } else {
+                if (getMoneyInt < totalPrice) {
+                    System.out.printf("현금으로 %d원 결제되었습니다.\n", getMoneyInt);
+                    System.out.printf("추가 결제하실 금액은 %d입니다.\n", totalPrice - getMoneyInt);
+                    return totalPrice - getMoneyInt;
+                } else {
+                    System.out.println("결제가 완료되었습니다.");
+                    System.out.printf("거스름 돈은 %d입니다.\n", getMoneyInt - totalPrice);
+                    return 0;
+                }
+            }
+        }
     }
     // 5번 옵션 직전 영수증 발행 메서드
     private void printLastReceipt() {
+        if (lastPayResult.isEmpty()) {
+            System.out.println("결제한 내역이 없어 메뉴로 돌아갑니다.");
+        } else {
+            System.out.println("직전 영수증을 발행합니다.");
+            System.out.println(lastPayResult);
+        }
     }
-
-    // 6번 옵션 환불 및 반품 메서드
-    private void refundAndReturn() {
-    }
-
-    // 7번 옵션 금일 매출 조회 메서드
-
+    // 6번 옵션 금일 매출 조회 메서드
     private void getTodaySales() {
         if (!checkMaster()) {
             System.out.println("권한이 없어 메뉴로 돌아갑니다.");
@@ -281,6 +457,33 @@ public class MidExam {
         System.out.printf("금일 판매된 금액은: 총 %d원 입니다.", todaySalesTotal);
         System.out.println();
     }
+
+    // 7번 옵션 환불 및 반품 메서드
+    private void refundAndReturn() {
+        if (!checkMaster()) {
+            System.out.println("권한이 없어 메뉴로 돌아갑니다.");
+            return;
+        }
+        while (true) {
+            for (int i = 0; i < logStoreCount; i++) {
+                if (payLog[i] != null && !payLog[i].isEmpty()) {
+                    System.out.print("항목 " + (i + 1) + ": \n" + payLog[i]);
+                }
+            }
+            System.out.print("몇 번째 항목을 환불 하시겠습니까?(취소는 q를 입력해주세요.) ");
+            String choice = scanner.nextLine();
+            if (choice.equals("q") || choice.equals("Q")) {
+                System.out.println("메뉴로 돌아갑니다.");
+                return;
+            }
+            if (haveWords(choice)) {
+                System.out.println("잘못된 입력입니다.번호를 확인 후 다시 입력해주세요.");
+                continue;
+            }
+
+        }
+    }
+
     // 8번 옵션 판매 상품명 및 가격 변경 메서드
     private void updateProductNameAndPrice() {
         for (boolean b : useListLine) {
@@ -382,7 +585,7 @@ public class MidExam {
         }
         endButton = true;
     }
-    //문자열에 int형으로 변환될 수 있는 값 외에 다른 값이 있는지 확인
+    //문자열에 int 값으로 변환될 수 있는 값 외에 다른 값이 있는지 확인
     private boolean haveWords(String string) {
         boolean isNotNumber = false;
         if (string.isEmpty()) {
