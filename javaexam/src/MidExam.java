@@ -25,6 +25,11 @@ public class MidExam {
     int logPoint = 0;
     String lastPayResult = "";
     int todaySalesTotal = 0;//금일 매출 조회를 위해 선언
+    // 메인
+    public static void main(String[] args) {
+        MidExam convenienceStorePos = new MidExam();
+        convenienceStorePos.run();
+    }
     //메인 실행 메서드
     public void run() {
         setProductList();
@@ -321,47 +326,6 @@ public class MidExam {
         System.out.println("결제가 종료되어 메뉴로 돌아갑니다.");
         endPay(totalPrice);
     }
-    //결제 후 결제내역 관리 메서드
-    private void endPay(int totalPr) {
-        //장바구니 초기화
-        for (int i = 0; i < listCount; i++) {
-            if (useListLine[i]) {
-                pickListName[i] = "";//이름 초기화
-                pickListPrice[i][1] = 0;//개수 초기화
-            }
-        }
-        for (int i = 0; i < listCount; i++) {
-            useListLine[i] = false;
-        }
-        payLog[logPoint] = lastPayResult;
-        payLogPrice[logPoint] = totalPr;
-        logPoint++;
-        if (logPoint == logStoreCount) {
-            logPoint = 0;
-        }
-    }
-    //영수증 생성 메서드
-    private void madeLastLog(int totalPrice, boolean disCount) {
-        lastPayResult = "";
-        int totalCount = 0;
-        for (int i = 0; i < listCount; i++) {
-            if (useListLine[i]) {
-                String itemResult = pickListName[i] + "\t\t  " + pickListPrice[i][0] + "원 " + pickListPrice[i][1] + "개\n";
-                lastPayResult += itemResult;
-                totalCount += pickListPrice[i][1];
-            }
-        }
-        String totalCountStr = "\t\t\t 수량:    " + totalCount + "개\n";
-        lastPayResult += totalCountStr;
-
-        String totalPriceStr = "\t\t\t 합계: " + totalPrice + "원\n";
-        lastPayResult += totalPriceStr;
-
-        if (disCount) {
-            String discountStr = "할인 " + memberDisCount + "%가 적용된 금액입니다\n";
-            lastPayResult += discountStr;
-        }
-    }
 
     // 4_1 멤버십 할인 적용
     private int memberShipAndGift(int originalPrice) {
@@ -614,6 +578,47 @@ public class MidExam {
         }
         endButton = true;
     }
+    //결제 후 결제내역 관리 메서드
+    private void endPay(int totalPr) {
+        //장바구니 초기화
+        for (int i = 0; i < listCount; i++) {
+            if (useListLine[i]) {
+                pickListName[i] = "";//이름 초기화
+                pickListPrice[i][1] = 0;//개수 초기화
+            }
+        }
+        for (int i = 0; i < listCount; i++) {
+            useListLine[i] = false;
+        }
+        payLog[logPoint] = lastPayResult;
+        payLogPrice[logPoint] = totalPr;
+        logPoint++;
+        if (logPoint == logStoreCount) {
+            logPoint = 0;
+        }
+    }
+    //영수증 생성 메서드
+    private void madeLastLog(int totalPrice, boolean disCount) {
+        lastPayResult = "";
+        int totalCount = 0;
+        for (int i = 0; i < listCount; i++) {
+            if (useListLine[i]) {
+                String itemResult = pickListName[i] + "\t\t  " + pickListPrice[i][0] + "원 " + pickListPrice[i][1] + "개\n";
+                lastPayResult += itemResult;
+                totalCount += pickListPrice[i][1];
+            }
+        }
+        String totalCountStr = "\t\t\t 수량:    " + totalCount + "개\n";
+        lastPayResult += totalCountStr;
+
+        String totalPriceStr = "\t\t\t 합계: " + totalPrice + "원\n";
+        lastPayResult += totalPriceStr;
+
+        if (disCount) {
+            String discountStr = "할인 " + memberDisCount + "%가 적용된 금액입니다\n";
+            lastPayResult += discountStr;
+        }
+    }
     //담은 상품이 없는지 확인
     private boolean haveNoItem() {
         boolean haveNoItem = true;
@@ -653,11 +658,5 @@ public class MidExam {
             System.out.println("암호가 일치하지 않습니다.");
             return false;
         }
-    }
-
-    // 메인
-    public static void main(String[] args) {
-        MidExam convenienceStorePos = new MidExam();
-        convenienceStorePos.run();
     }
 }
