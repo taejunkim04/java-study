@@ -1,13 +1,13 @@
 package study10try_catch;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class ExceptionBasic {
     public void methodA(String filename) throws FileNotFoundException {
-        if (filename != null) {
-            System.out.println("파일명: " + filename.toUpperCase());
+        if (filename == null) {
+            throw new FileNotFoundException("테스트 파일 없음");
         }
+        System.out.println("파일명: " + filename.toUpperCase());
     }
 
     public void methodB() throws IOException {
@@ -18,8 +18,16 @@ public class ExceptionBasic {
         ExceptionBasic eb = new ExceptionBasic();
         try {
             eb.methodA(null);
+            eb.methodB();
+            System.out.println("예외로 싱행되지 않음");
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            System.out.println("finally 블록 실행");
         }
+        System.out.println("프로그램 종료");
     }
 }
