@@ -5,6 +5,7 @@ import java.util.List;
 public class MenuItem {
     private String name;
     private int price;
+    private List<Option> options;
 
     public List<Option> getOptions() {
         return options;
@@ -14,7 +15,6 @@ public class MenuItem {
         this.options = options;
     }
 
-    private List<Option> options;
 
     public MenuItem() {
     }
@@ -38,5 +38,9 @@ public class MenuItem {
 
     public void setPrice(int price) {
         this.price = price;
+    }
+    @Override
+    public String toString() {
+        return String.format("%s %d원", name, price);
     }
 }
