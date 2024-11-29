@@ -1,5 +1,6 @@
 package project2;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -13,7 +14,7 @@ public class KioskAppV2 {
     public KioskAppV2(MenuLoader menuLoader) {
         try {
             menu = menuLoader.loadMenu();
-        } catch (LoadMenuException e) {
+        } catch (LoadMenuException | IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -80,7 +81,7 @@ public class KioskAppV2 {
     }
 
     public static void main(String[] args) {
-        KioskAppV2 app = new KioskAppV2(new BaseMenuLoader());
+        KioskAppV2 app = new KioskAppV2(new JsonMenuLoader());
 //        while (true) {
             app.start();
 //        }
