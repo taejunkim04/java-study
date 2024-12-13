@@ -13,6 +13,7 @@ import java.util.ArrayList;
 
 public class RestMenuLoader implements MenuLoader{
     final String site = "https://qu4wqricio5pamdqij2mai57we0wjwal.lambda-url.ap-northeast-2.on.aws";
+    //람다 aws 소규모의 경우 100만 건 가량까지는 무료이기 때문에 aws EC2에 비해 경제적임
 
     @Override
     public List<MenuItem> loadMenu() throws LoadMenuException {
